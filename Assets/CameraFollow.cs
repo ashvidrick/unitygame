@@ -20,7 +20,7 @@ public class CameraFollow : MonoBehaviour
         if (target == null) return;
 
         float targetX = target.position.x + offset.x;
-        float newX = Mathf.Lerp(transform.position.x, targetX, lateralLag * Time.deltaTime);
+        float newX = Mathf.Lerp(transform.position.x, targetX, lateralLag * Time.deltaTime * 100);
 
         float newZ = followZ ? target.position.z + offset.z : startZ;
 

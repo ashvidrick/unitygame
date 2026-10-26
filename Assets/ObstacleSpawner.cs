@@ -7,25 +7,25 @@ public class ObstacleSpawner : MonoBehaviour
     public Transform player;
 
     [Header("Префабы")]
-    public GameObject triggerObstaclePrefab;
-    public GameObject blockerObstaclePrefab;
+    public GameObject triggerPrefab;      // тип 1: взрыв + счёт
+    public GameObject passThroughPrefab;  // тип 2: исчезает + счёт
+    public GameObject blockerPrefab;      // тип 3: тормозит
 
     [Header("Спавн")]
     public float spawnAhead = 40f;
     public float despawnBehind = 15f;
-    public float spawnIntervalZ = 6f;
+    public float spawnIntervalZ = 5f;
+    public float levelHeight = 3f;
 
-    [Header("Сетка X")]
+    [Header("Сетка")]
     public float[] laneX = { -4f, -1.5f, 0f, 1.5f, 4f };
+    public int[] levels = { -1, 0, 1 };
 
-    [Header("Сетка Y")]
-    public float yMin = 0f;
-    public float yMax = 2.5f;
-    public int ySteps = 3;    // 0 = у пола, 1 = середина, 2 = верх (при ySteps=3)
-
-    [Header("Плотность")]
-    [Range(0f, 1f)] public float emptyRowChance = 0.2f;
-    [Range(0f, 1f)] public float blockerChance = 0.4f;
+    [Header("Шансы появления (сумма не важна, Unity нормирует)")]
+    [Range(0f, 1f)] public float emptyRowChance = 0.0f;
+    [Range(0f, 1f)] public float triggerChance = 0.4f;
+    [Range(0f, 1f)] public float passThroughChance = 0.3f;
+    [Range(0f, 1f)] public float blockerChance = 0.3f;
 
     private float nextSpawnZ;
     private readonly List<GameObject> alive = new List<GameObject>();
@@ -60,40 +60,42 @@ public class ObstacleSpawner : MonoBehaviour
     {
         if (Random.value < emptyRowChance) return;
 
-        int count = Random.Range(1, 3);
+        int count = Random.Range(1, 5);
 
-        // подготовим ячейки: X из laneX, Y — дискретные шаги
-        var cells = new List<(float x, float y)>();
+        var cells = new List<(float x, int lvl)>();
         foreach (var x in laneX)
-        {
-            float y = PickY();
-            cells.Add((x, y));
-        }
+            foreach (var lvl in levels)
+                cells.Add((x, lvl));
 
         Shuffle(cells);
 
         for (int i = 0; i < count; i++)
         {
-            var (x, y) = cells[i];
-            Vector3 pos = new Vector3(x, y, z);
+            var (x, lvl) = cells[i];
+            Vector3 pos = new Vector3(x, lvl * levelHeight, z);
 
-            GameObject prefab = Random.value < blockerChance
-                ? blockerObstaclePrefab
-                : triggerObstaclePrefab;
+            GameObject prefab = PickPrefab();
+            if (prefab == null) continue;
 
-            var go = Instantiate(prefab, pos, Quaternion.identity, transform);
+            var go = Instantiate(prefab, pos, prefab.transform.rotation/*Quaternion.identity*/, transform);
             alive.Add(go);
         }
     }
 
-    float PickY()
+    GameObject PickPrefab()
     {
-        if (ySteps <= 1) return Random.Range(yMin, yMax);
+        float total = triggerChance + passThroughChance + blockerChance;
+        if (total <= 0f) return null;
 
-        // дискретные уровни между yMin и yMax
-        int step = Random.Range(0, ySteps);
-        float t = (float)step / (ySteps - 1);   // 0..1
-        return Mathf.Lerp(yMin, yMax, t);
+        float r = Random.value * total;
+
+        if (r < triggerChance) return triggerPrefab;
+        r -= triggerChance;
+
+        if (r < passThroughChance) return passThroughPrefab;
+        r -= passThroughChance;
+
+        return blockerPrefab;
     }
 
     void Shuffle<T>(List<T> list)

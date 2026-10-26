@@ -49,6 +49,15 @@ public class VitorcMotor : MonoBehaviour
         if (playerVitorc == null) playerVitorc = transform;
         targetVisualY = currentLevel * levelHeight;
     }
+    public void ApplyBounce(Vector3 velocity)
+    {
+        // разложить скорость по осям
+        currentVelX = velocity.x;
+        currentVelZ = velocity.z;
+
+        // визуально дёрнуть визуал (опционально)
+        // можно добавить тряску visualRoot
+    }
 
     void Update()
     {
@@ -85,7 +94,7 @@ public class VitorcMotor : MonoBehaviour
 
         float input = Input.GetAxisRaw("Vertical"); // W/S
 
-        Debug.Log($"input={input}, velZ={currentVelZ:F2}, posZ={transform.position.z:F3}, deltaTime={Time.deltaTime:F4}");
+        //Debug.Log($"input={input}, velZ={currentVelZ:F2}, posZ={transform.position.z:F3}, deltaTime={Time.deltaTime:F4}");
 
         float targetVel = 0f;
 
