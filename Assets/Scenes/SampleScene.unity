@@ -1501,9 +1501,9 @@ MonoBehaviour:
   - 4
   levels: ffffffff0000000001000000
   emptyRowChance: 0
-  triggerChance: 0.726
-  passThroughChance: 0.604
-  blockerChance: 0.912
+  triggerChance: 1
+  passThroughChance: 1
+  blockerChance: 0.354
 --- !u!1 &2131446652
 GameObject:
   m_ObjectHideFlags: 0
