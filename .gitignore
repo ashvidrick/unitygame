@@ -50,7 +50,7 @@
 *.opendb
 *.VC.db
 *.apk
-windows\
+windows/
 
 
 # Unity3D generated meta files
