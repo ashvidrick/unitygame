@@ -49,6 +49,9 @@
 *.mdb
 *.opendb
 *.VC.db
+*.apk
+windows\
+
 
 # Unity3D generated meta files
 *.pidb.meta
